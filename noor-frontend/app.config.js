@@ -70,7 +70,7 @@ module.exports = {
     experiments: { typedRoutes: true },
     extra: {
       router: {},
-      eas: { projectId: '7fddec1e-999e-4bd9-b498-fb0ab013a271' },
+      eas: { projectId: '8d33f4ae-5c8e-4c3f-898b-13f79105e2b9' },
       // Expose OAuth config through Constants.expoConfig.extra
       oauthClientId: process.env.EXPO_PUBLIC_OAUTH_CLIENT_ID,
       oauthRedirectUri: process.env.EXPO_PUBLIC_OAUTH_REDIRECT_URI,
