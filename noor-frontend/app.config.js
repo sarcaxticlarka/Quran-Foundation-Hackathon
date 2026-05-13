@@ -1,7 +1,5 @@
-// app.config.js — replaces app.json so that .env variables are loaded
-// at `expo start` time and baked into the app bundle for Expo Go too.
-const path = require('path');
-require('dotenv').config({ path: path.resolve(__dirname, '.env') });
+// app.config.js — dynamic config so EAS env vars (from eas.json) are picked up.
+// Do NOT use dotenv here — EAS injects EXPO_PUBLIC_* vars into process.env directly.
 
 module.exports = {
   expo: {
