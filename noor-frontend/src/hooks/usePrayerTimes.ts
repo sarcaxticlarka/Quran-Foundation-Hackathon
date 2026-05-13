@@ -17,6 +17,44 @@ interface UsePrayerTimesResult {
   requestPermission: () => Promise<void>;
 }
 
+// Try multiple free IP geolocation APIs in order
+async function getLocationFromIP(): Promise<{ lat: number; lng: number; city?: string } | null> {
+  // 1. ip-api.com — free, no key needed, very reliable
+  try {
+    const res = await fetch('http://ip-api.com/json/?fields=status,lat,lon,city', {
+      signal: AbortSignal.timeout(5000),
+    });
+    const json = await res.json();
+    if (json.status === 'success' && json.lat && json.lon) {
+      return { lat: json.lat, lng: json.lon, city: json.city };
+    }
+  } catch {}
+
+  // 2. ipapi.co fallback
+  try {
+    const res = await fetch('https://ipapi.co/json/', {
+      signal: AbortSignal.timeout(5000),
+    });
+    const json = await res.json();
+    if (json.latitude && json.longitude) {
+      return { lat: json.latitude, lng: json.longitude, city: json.city };
+    }
+  } catch {}
+
+  // 3. freeipapi.com fallback
+  try {
+    const res = await fetch('https://freeipapi.com/api/json', {
+      signal: AbortSignal.timeout(5000),
+    });
+    const json = await res.json();
+    if (json.latitude && json.longitude) {
+      return { lat: json.latitude, lng: json.longitude, city: json.cityName };
+    }
+  } catch {}
+
+  return null;
+}
+
 export function usePrayerTimes(): UsePrayerTimesResult {
   const [coords, setCoords] = useState<{ lat: number; lng: number } | null>(null);
   const [cityHint, setCityHint] = useState<string | undefined>(undefined);
@@ -25,52 +63,63 @@ export function usePrayerTimes(): UsePrayerTimesResult {
   const madhab = useAuthStore((s) => s.user?.madhab);
 
   const getLocation = async (): Promise<{ lat: number; lng: number } | null> => {
-    // 1. Try last known position first — instant if cached
+    // 1. Try last known GPS position — instant if cached
     try {
       const last = await Location.getLastKnownPositionAsync();
       if (last) return { lat: last.coords.latitude, lng: last.coords.longitude };
     } catch {}
 
-    // 2. Try GPS with a short timeout
+    // 2. Try fresh GPS with low accuracy (faster)
     try {
       const loc = await Location.getCurrentPositionAsync({
         accuracy: Location.Accuracy.Low,
       });
-      return { lat: loc.coords.latitude, lng: loc.coords.longitude };
+      if (loc) return { lat: loc.coords.latitude, lng: loc.coords.longitude };
     } catch {}
 
     // 3. IP-based fallback — city-level, good enough for prayer times
-    try {
-      const res = await fetch('https://ipapi.co/json/', { signal: AbortSignal.timeout(5000) });
-      const json = await res.json();
-      if (json.latitude && json.longitude) {
-        if (json.city) setCityHint(json.city);
-        return { lat: json.latitude, lng: json.longitude };
-      }
-    } catch {}
+    const ipLocation = await getLocationFromIP();
+    if (ipLocation) {
+      if (ipLocation.city) setCityHint(ipLocation.city);
+      return { lat: ipLocation.lat, lng: ipLocation.lng };
+    }
 
     return null;
   };
 
-  // On mount: check existing permission status — never prompt automatically
+  // On mount: check existing permission. If granted → get location.
+  // If not granted → skip GPS and go straight to IP location so prayer
+  // times always show without needing location permission.
   useEffect(() => {
     let cancelled = false;
     (async () => {
       const { status } = await Location.getForegroundPermissionsAsync();
       if (cancelled) return;
+
       if (status === 'granted') {
         setPermissionStatus('granted');
-        const coords = await getLocation();
+        const loc = await getLocation();
         if (cancelled) return;
-        if (coords) {
-          setCoords(coords);
+        if (loc) {
+          setCoords(loc);
         } else {
           setLocationUnavailable(true);
         }
-      } else if (status === 'denied') {
-        setPermissionStatus('denied');
       } else {
-        setPermissionStatus('not-asked');
+        // Permission not granted — use IP location silently so prayer times
+        // still show. Mark as 'not-asked' so the opt-in prompt is visible
+        // (user can grant GPS for more accurate times).
+        setPermissionStatus(status === 'denied' ? 'denied' : 'not-asked');
+
+        // Still try IP location regardless of GPS permission
+        const ipLocation = await getLocationFromIP();
+        if (cancelled) return;
+        if (ipLocation) {
+          if (ipLocation.city) setCityHint(ipLocation.city);
+          setCoords({ lat: ipLocation.lat, lng: ipLocation.lng });
+        } else {
+          setLocationUnavailable(true);
+        }
       }
     })();
     return () => { cancelled = true; };
@@ -82,9 +131,9 @@ export function usePrayerTimes(): UsePrayerTimesResult {
     if (status === 'granted') {
       setPermissionStatus('granted');
       setLocationUnavailable(false);
-      const coords = await getLocation();
-      if (coords) {
-        setCoords(coords);
+      const loc = await getLocation();
+      if (loc) {
+        setCoords(loc);
       } else {
         setLocationUnavailable(true);
       }
@@ -95,12 +144,12 @@ export function usePrayerTimes(): UsePrayerTimesResult {
 
   const today = new Date().toISOString().split('T')[0];
 
-  const { data, isLoading, isError } = useQuery({
+  const { data, isLoading: queryLoading, isError } = useQuery({
     queryKey: ['prayer-times', coords?.lat, coords?.lng, today, madhab ?? '', cityHint ?? ''],
     queryFn: () => fetchPrayerTimes(coords!.lat, coords!.lng, madhab, cityHint),
     enabled: !!coords,
     staleTime: 1000 * 60 * 60 * 12,
-    retry: 1,
+    retry: 2,
   });
 
   const currentInfo = data ? getCurrentPrayerInfo(data.times) : undefined;
@@ -119,14 +168,20 @@ export function usePrayerTimes(): UsePrayerTimesResult {
     }
   }, [data?.times]);
 
+  // isLoading: true while checking permissions OR fetching location OR fetching prayer times
+  const isLoading =
+    permissionStatus === 'unknown' ||
+    (!coords && !locationUnavailable) ||
+    (!!coords && queryLoading);
+
   return {
     data,
     currentInfo,
-    isLoading: permissionStatus === 'granted' && !coords && !locationUnavailable,
+    isLoading,
     isError,
     permissionStatus,
     locationUnavailable,
-    city: data?.city ?? '',
+    city: data?.city ?? cityHint ?? '',
     requestPermission,
   };
 }

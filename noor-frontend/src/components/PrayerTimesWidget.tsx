@@ -42,8 +42,18 @@ export function PrayerTimesWidget() {
     return () => clearInterval(id);
   }, [currentInfo?.minutesUntilNext]);
 
-  // Not yet asked — show a soft opt-in prompt, no pressure
-  if (permissionStatus === 'not-asked' || permissionStatus === 'unknown') {
+  // Loading — checking permissions or fetching location/prayer times
+  if (isLoading) {
+    return (
+      <View style={styles.loadingCard}>
+        <ActivityIndicator size="small" color={Colors.gold} />
+        <Text style={styles.loadingText}>Getting prayer times...</Text>
+      </View>
+    );
+  }
+
+  // Location completely unavailable (GPS denied + all IP APIs failed)
+  if (locationUnavailable && !data) {
     return (
       <TouchableOpacity
         style={styles.optInCard}
@@ -59,8 +69,8 @@ export function PrayerTimesWidget() {
           <Ionicons name="location-outline" size={20} color={Colors.gold} />
         </View>
         <View style={{ flex: 1 }}>
-          <Text style={styles.optInTitle}>See your prayer times</Text>
-          <Text style={styles.optInBody}>Tap to enable location — only used for accurate prayer schedules.</Text>
+          <Text style={styles.optInTitle}>Enable location for prayer times</Text>
+          <Text style={styles.optInBody}>Tap to allow location access for accurate prayer schedules.</Text>
         </View>
         {requesting
           ? <ActivityIndicator size="small" color={Colors.gold} />
@@ -70,34 +80,7 @@ export function PrayerTimesWidget() {
     );
   }
 
-  // Denied — show a minimal, non-nagging note
-  if (permissionStatus === 'denied') {
-    return (
-      <View style={styles.deniedCard}>
-        <Ionicons name="location-outline" size={14} color={Colors.textMuted} />
-        <Text style={styles.deniedText}>Location access off — enable in Settings to see prayer times.</Text>
-      </View>
-    );
-  }
-
-  if (locationUnavailable) {
-    return (
-      <View style={styles.deniedCard}>
-        <Ionicons name="navigate-outline" size={14} color={Colors.textMuted} />
-        <Text style={styles.deniedText}>Location signal unavailable. Move to an open area and try again.</Text>
-      </View>
-    );
-  }
-
-  if (isLoading) {
-    return (
-      <View style={styles.loadingCard}>
-        <ActivityIndicator size="small" color={Colors.gold} />
-        <Text style={styles.loadingText}>Getting prayer times...</Text>
-      </View>
-    );
-  }
-
+  // No data yet and not loading — shouldn't normally happen, show nothing
   if (!data || !currentInfo) return null;
 
   const nextColor = PRAYER_COLORS[currentInfo.next];
@@ -126,6 +109,29 @@ export function PrayerTimesWidget() {
 
       {/* Hijri date */}
       <Text style={styles.hijriDate}>{data.hijriDate}</Text>
+
+      {/* GPS upgrade prompt — shown when using IP location */}
+      {permissionStatus === 'not-asked' && (
+        <TouchableOpacity
+          style={styles.gpsPrompt}
+          activeOpacity={0.8}
+          onPress={async () => {
+            setRequesting(true);
+            try { await requestPermission(); } catch {}
+            setRequesting(false);
+          }}
+          disabled={requesting}
+        >
+          <Ionicons name="location-outline" size={13} color={Colors.gold} />
+          <Text style={styles.gpsPromptText}>
+            Using approximate location · Tap to enable GPS for exact times
+          </Text>
+          {requesting
+            ? <ActivityIndicator size="small" color={Colors.gold} style={{ marginLeft: 4 }} />
+            : <Ionicons name="chevron-forward" size={12} color={Colors.gold} />
+          }
+        </TouchableOpacity>
+      )}
 
       {/* Expanded prayer list */}
       {expanded && (
@@ -175,7 +181,18 @@ const styles = StyleSheet.create({
   cityText: { fontFamily: 'Raleway_400Regular', fontSize: 11, color: Colors.textMuted },
   hijriDate: {
     fontFamily: 'CormorantGaramond_400Regular', fontSize: 13,
-    color: Colors.textMuted, paddingHorizontal: 14, paddingBottom: 10,
+    color: Colors.textMuted, paddingHorizontal: 14, paddingBottom: 8,
+  },
+  gpsPrompt: {
+    flexDirection: 'row', alignItems: 'center', gap: 6,
+    marginHorizontal: 14, marginBottom: 10,
+    backgroundColor: Colors.gold + '12',
+    borderRadius: 8, paddingHorizontal: 10, paddingVertical: 7,
+    borderWidth: 1, borderColor: Colors.gold + '2A',
+  },
+  gpsPromptText: {
+    flex: 1, fontFamily: 'Raleway_400Regular', fontSize: 11,
+    color: Colors.gold, opacity: 0.85,
   },
   prayerList: {
     borderTopWidth: 1, borderTopColor: Colors.darkBorder,
@@ -208,10 +225,4 @@ const styles = StyleSheet.create({
   },
   optInTitle: { fontFamily: 'Raleway_600SemiBold', fontSize: 14, color: Colors.textPrimary },
   optInBody: { fontFamily: 'Raleway_400Regular', fontSize: 12, color: Colors.textMuted, marginTop: 2, lineHeight: 18 },
-  deniedCard: {
-    flexDirection: 'row', alignItems: 'center', gap: 8,
-    backgroundColor: Colors.darkBg2, borderRadius: 12,
-    padding: 12, borderWidth: 1, borderColor: Colors.darkBorder,
-  },
-  deniedText: { fontFamily: 'Raleway_400Regular', fontSize: 12, color: Colors.textMuted, flex: 1 },
 });
