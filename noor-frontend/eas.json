@@ -1,0 +1,50 @@
+{
+  "cli": {
+    "version": ">= 18.11.0",
+    "appVersionSource": "remote"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "env": {
+        "EXPO_PUBLIC_BACKEND_URL": "https://quran-foundation-hackathon.onrender.com",
+        "EXPO_PUBLIC_BACKEND_API_KEY": "noor_internal_secret_2026",
+        "EXPO_PUBLIC_OAUTH_CLIENT_ID": "3216689e-2f59-43b1-92e5-425853fb4326",
+        "EXPO_PUBLIC_QURAN_OAUTH_ENDPOINT": "https://prelive-oauth2.quran.foundation",
+        "EXPO_PUBLIC_OAUTH_REDIRECT_URI": "noor://oauth/callback",
+        "EXPO_PUBLIC_QURAN_MCP_URL": "https://mcp.quran.com",
+        "npm_config_legacy_peer_deps": "true"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "android": {
+        "buildType": "apk"
+      },
+      "env": {
+        "EXPO_PUBLIC_BACKEND_URL": "https://quran-foundation-hackathon.onrender.com",
+        "EXPO_PUBLIC_BACKEND_API_KEY": "noor_internal_secret_2026",
+        "EXPO_PUBLIC_OAUTH_CLIENT_ID": "3216689e-2f59-43b1-92e5-425853fb4326",
+        "EXPO_PUBLIC_QURAN_OAUTH_ENDPOINT": "https://prelive-oauth2.quran.foundation",
+        "EXPO_PUBLIC_OAUTH_REDIRECT_URI": "noor://oauth/callback",
+        "EXPO_PUBLIC_QURAN_MCP_URL": "https://mcp.quran.com",
+        "npm_config_legacy_peer_deps": "true"
+      }
+    },
+    "production": {
+      "autoIncrement": true,
+      "env": {
+        "EXPO_PUBLIC_BACKEND_URL": "https://quran-foundation-hackathon.onrender.com",
+        "EXPO_PUBLIC_BACKEND_API_KEY": "noor_internal_secret_2026",
+        "EXPO_PUBLIC_OAUTH_CLIENT_ID": "2a7ff50c-6881-40d6-b988-d934b784aee3",
+        "EXPO_PUBLIC_QURAN_OAUTH_ENDPOINT": "https://oauth2.quran.foundation",
+        "EXPO_PUBLIC_OAUTH_REDIRECT_URI": "noor://oauth/callback",
+        "EXPO_PUBLIC_QURAN_MCP_URL": "https://mcp.quran.com"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}
