@@ -1,0 +1,207 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Profile {
+  id                 String   @id
+  name               String?
+  email              String?
+  avatarUrl          String?  @map("avatar_url")
+  quranicIdentity    String?  @map("quranic_identity")
+  onboardingDone     Boolean  @default(false) @map("onboarding_done")
+  madhab             String?
+  readingLevel       String?  @map("reading_level")
+  dailyGoalMinutes   Int?     @map("daily_goal_minutes")
+  translationId      Int?     @map("translation_id")
+  nudgesEnabled      Boolean? @map("nudges_enabled")
+  nudgeTimes         Json?    @map("nudge_times")
+  reviewReminders    Boolean? @map("review_reminders")
+  halaqaAlerts       Boolean? @map("halaqa_alerts")
+  createdAt          DateTime @default(now()) @map("created_at")
+  updatedAt          DateTime @updatedAt @map("updated_at")
+
+  streak             Streak?
+  activityLogs       ActivityLog[]
+  bookmarks          Bookmark[]
+  reviewCards        ReviewCard[]
+  reflections        Reflection[]
+  goals              Goal[]
+  halaqaMemberships  HalaqaMember[]
+  createdHalaqas     HalaqaCircle[]
+  crisisSessions     CrisisSession[]
+  nudgePreference    NudgePreference?
+  emailAccount       EmailAccount?
+
+  @@map("profiles")
+}
+
+model EmailAccount {
+  id           String   @id @default(cuid())
+  email        String   @unique
+  passwordHash String   @map("password_hash")
+  salt         String
+  profileId    String   @unique @map("profile_id")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  profile      Profile  @relation(fields: [profileId], references: [id], onDelete: Cascade)
+
+  @@map("email_accounts")
+}
+
+model Streak {
+  id             String   @id @default(cuid())
+  userId         String   @unique @map("user_id")
+  currentStreak  Int      @default(0) @map("current_streak")
+  longestStreak  Int      @default(0) @map("longest_streak")
+  lastActivity   DateTime? @map("last_activity") @db.Date
+  totalDays      Int      @default(0) @map("total_days")
+  freezeCount    Int      @default(0) @map("freeze_count")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  profile        Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("streaks")
+}
+
+model ActivityLog {
+  id         String   @id @default(cuid())
+  userId     String   @map("user_id")
+  date       DateTime @db.Date
+  versesRead Int      @default(0) @map("verses_read")
+  minutes    Int      @default(0)
+  xpEarned   Int      @default(0) @map("xp_earned")
+  source     String?
+  createdAt  DateTime @default(now()) @map("created_at")
+  updatedAt  DateTime @updatedAt @map("updated_at")
+  profile    Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, date])
+  @@map("activity_logs")
+}
+
+model Bookmark {
+  id        String   @id @default(cuid())
+  userId    String   @map("user_id")
+  verseKey  String   @map("verse_key")
+  surahNum  Int      @map("surah_num")
+  ayahNum   Int      @map("ayah_num")
+  note      String?
+  createdAt DateTime @default(now()) @map("created_at")
+  updatedAt DateTime @updatedAt @map("updated_at")
+  profile   Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, verseKey])
+  @@map("bookmarks")
+}
+
+model ReviewCard {
+  id             String   @id @default(cuid())
+  userId         String   @map("user_id")
+  verseKey       String   @map("verse_key")
+  repetitions    Int      @default(0)
+  easeFactor     Float    @default(2.5) @map("ease_factor")
+  intervalDays   Int      @default(0) @map("interval_days")
+  nextReviewAt   DateTime @map("next_review_at")
+  lastQuality    Int?     @map("last_quality")
+  totalReviews   Int      @default(0) @map("total_reviews")
+  correctReviews Int      @default(0) @map("correct_reviews")
+  createdAt      DateTime @default(now()) @map("created_at")
+  updatedAt      DateTime @updatedAt @map("updated_at")
+  profile        Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, verseKey])
+  @@map("review_cards")
+}
+
+model Reflection {
+  id           String   @id @default(cuid())
+  userId       String   @map("user_id")
+  verseKey     String?  @map("verse_key")
+  body         String
+  mood         String?
+  isPublic     Boolean  @default(false) @map("is_public")
+  aiEnrichment Json?    @map("ai_enrichment")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  profile      Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("reflections")
+}
+
+model Goal {
+  id           String   @id @default(cuid())
+  userId       String   @map("user_id")
+  type         String
+  targetValue  Int      @map("target_value")
+  currentValue Int      @default(0) @map("current_value")
+  period       String   @default("daily")
+  isActive     Boolean  @default(true) @map("is_active")
+  createdAt    DateTime @default(now()) @map("created_at")
+  updatedAt    DateTime @updatedAt @map("updated_at")
+  profile      Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([userId, type])
+  @@map("goals")
+}
+
+model HalaqaCircle {
+  id          String         @id @default(cuid())
+  createdBy   String         @map("created_by")
+  name        String
+  description String?
+  inviteCode  String         @unique @default(cuid()) @map("invite_code")
+  createdAt   DateTime       @default(now()) @map("created_at")
+  updatedAt   DateTime       @updatedAt @map("updated_at")
+  creator     Profile        @relation(fields: [createdBy], references: [id], onDelete: Cascade)
+  members     HalaqaMember[]
+
+  @@map("halaqa_circles")
+}
+
+model HalaqaMember {
+  id        String       @id @default(cuid())
+  circleId  String       @map("circle_id")
+  userId    String       @map("user_id")
+  role      String       @default("member")
+  createdAt DateTime     @default(now()) @map("created_at")
+  circle    HalaqaCircle @relation(fields: [circleId], references: [id], onDelete: Cascade)
+  profile   Profile      @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([circleId, userId])
+  @@map("halaqa_members")
+}
+
+model CrisisSession {
+  id             String   @id @default(cuid())
+  userId         String   @map("user_id")
+  mood           String
+  inputText      String?  @map("input_text")
+  verseKey       String?  @map("verse_key")
+  dhikrCompleted Boolean  @default(false) @map("dhikr_completed")
+  durationSecs   Int?     @map("duration_secs")
+  createdAt      DateTime @default(now()) @map("created_at")
+  profile        Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("crisis_sessions")
+}
+
+model NudgePreference {
+  id              String   @id @default(cuid())
+  userId          String   @unique @map("user_id")
+  nudgesEnabled   Boolean  @default(true) @map("nudges_enabled")
+  activeWindows   Json?    @map("active_windows")
+  reviewReminders Boolean  @default(true) @map("review_reminders")
+  halaqaAlerts    Boolean  @default(true) @map("halaqa_alerts")
+  pushToken       String?  @map("push_token")
+  translationId   Int?     @map("translation_id")
+  createdAt       DateTime @default(now()) @map("created_at")
+  updatedAt       DateTime @updatedAt @map("updated_at")
+  profile         Profile  @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("nudge_preferences")
+}
