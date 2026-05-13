@@ -11,8 +11,9 @@ const DAY_LABELS = ['S', 'M', 'T', 'W', 'T', 'F', 'S'];
 
 function cellColor(value: number): string {
   if (value >= 4) return Colors.gold;
-  if (value >= 2) return Colors.goldDim;
-  if (value >= 1) return Colors.goldMuted;
+  if (value >= 3) return `${Colors.gold}B0`;
+  if (value >= 2) return `${Colors.gold}70`;
+  if (value >= 1) return `${Colors.gold}40`;
   return Colors.darkBg3;
 }
 
@@ -33,7 +34,7 @@ function CalendarHeatmap({ heatmapData }: { heatmapData: { date: string; value: 
   return (
     <View style={heatStyles.grid}>
       {cells.map((cell, i) => (
-        <View key={i} style={[heatStyles.cell, { backgroundColor: cellColor(cell.value) }]} />
+        <View key={i} style={[heatStyles.cell, { backgroundColor: cellColor(cell.value) }, cell.value > 0 && heatStyles.activeCell]} />
       ))}
     </View>
   );
@@ -41,7 +42,8 @@ function CalendarHeatmap({ heatmapData }: { heatmapData: { date: string; value: 
 
 const heatStyles = StyleSheet.create({
   grid: { flexDirection: 'row', flexWrap: 'wrap', gap: 4 },
-  cell: { width: 16, height: 16, borderRadius: 3 },
+  cell: { width: 16, height: 16, borderRadius: 3, borderWidth: 1, borderColor: Colors.darkBorder },
+  activeCell: { borderColor: `${Colors.gold}66` },
 });
 
 export default function StreakDetailScreen() {
@@ -111,7 +113,7 @@ export default function StreakDetailScreen() {
           <CalendarHeatmap heatmapData={heatmapData} />
           <View style={styles.legend}>
             <Text style={styles.legendText}>Less</Text>
-            {[Colors.darkBg3, Colors.goldMuted, Colors.goldDim, Colors.gold].map((c, i) => (
+            {[Colors.darkBg3, `${Colors.gold}40`, `${Colors.gold}70`, `${Colors.gold}B0`, Colors.gold].map((c, i) => (
               <View key={i} style={[styles.legendCell, { backgroundColor: c }]} />
             ))}
             <Text style={styles.legendText}>More</Text>

@@ -166,7 +166,7 @@ export const useStreakStore = create<StreakState>()(
         return Object.entries(history).map(([date, day]) => ({
           date,
           value: day.completed
-            ? Math.min(4, Math.floor((day.minutesActive + day.versesRead) / 10))
+            ? Math.max(1, Math.min(4, Math.ceil((day.minutesActive + day.versesRead + day.reviewsCompleted) / 8)))
             : 0,
         }));
       },

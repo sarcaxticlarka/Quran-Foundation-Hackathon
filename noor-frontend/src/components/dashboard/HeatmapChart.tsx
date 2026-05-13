@@ -18,9 +18,9 @@ const DAYS_IN_WEEK = 7;
 
 const INTENSITY_COLORS = [
   Colors.darkBg3,           // 0 - no activity
-  Colors.goldMuted,         // 1 - light
-  `${Colors.gold}55`,      // 2 - medium
-  `${Colors.gold}AA`,      // 3 - strong
+  `${Colors.gold}40`,       // 1 - completed / light
+  `${Colors.gold}70`,       // 2 - medium
+  `${Colors.gold}B0`,       // 3 - strong
   Colors.gold,              // 4 - full
 ];
 
@@ -69,6 +69,7 @@ export function HeatmapChart({ data, weeks = 17 }: HeatmapChartProps) {
                   style={[
                     styles.cell,
                     { backgroundColor: INTENSITY_COLORS[Math.min(4, cell.value)] },
+                    cell.value > 0 && styles.activeCell,
                   ]}
                 />
               ))}
@@ -123,6 +124,11 @@ const styles = StyleSheet.create({
     width: CELL_SIZE,
     height: CELL_SIZE,
     borderRadius: 2,
+    borderWidth: 1,
+    borderColor: Colors.darkBorder,
+  },
+  activeCell: {
+    borderColor: `${Colors.gold}66`,
   },
   legend: {
     flexDirection: 'row',
