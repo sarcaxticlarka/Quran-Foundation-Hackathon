@@ -1,17 +1,31 @@
 import React, { useEffect } from 'react';
 import { View, Text, StyleSheet, ActivityIndicator } from 'react-native';
 import { useRouter } from 'expo-router';
+import * as WebBrowser from 'expo-web-browser';
 import { useAuthStore } from '../../src/stores/authStore';
 import { Colors } from '../../src/theme/colors';
+
+// This is the screen that opens when the noor://oauth/callback deep link fires.
+// maybeCompleteAuthSession() signals expo-web-browser to close the in-app
+// browser and hand the authorization code back to the AuthRequest.promptAsync()
+// call that is waiting in quranUserAuth.ts.
+WebBrowser.maybeCompleteAuthSession();
 
 export default function OAuthCallback() {
   const router = useRouter();
 
   useEffect(() => {
+    // Give the auth store a moment to be updated by signInWithQuranFoundation
+    // before we navigate away.
     const timer = setTimeout(() => {
-      const onboardingComplete = useAuthStore.getState().onboardingComplete;
-      router.replace(onboardingComplete ? '/(tabs)' : '/(auth)/onboarding');
-    }, 500);
+      const { isAuthenticated, onboardingComplete } = useAuthStore.getState();
+      if (isAuthenticated) {
+        router.replace(onboardingComplete ? '/(tabs)' : '/(auth)/onboarding');
+      } else {
+        // Auth didn't complete — go back to the landing screen
+        router.replace('/(auth)');
+      }
+    }, 800);
     return () => clearTimeout(timer);
   }, [router]);
 

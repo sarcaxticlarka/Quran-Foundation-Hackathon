@@ -50,6 +50,7 @@ const VERSES = [
 export default function LandingScreen() {
   const router = useRouter();
   const [quranLoading, setQuranLoading] = useState(false);
+  const [quranError, setQuranError] = useState(false);
   const [verseIdx] = useState(() => Math.floor(Math.random() * VERSES.length));
   const verse = VERSES[verseIdx];
 
@@ -87,13 +88,18 @@ export default function LandingScreen() {
   });
 
   const handleQuranSignIn = async () => {
+    setQuranError(false);
     setQuranLoading(true);
     try {
       const result = await signInWithQuranFoundation();
       if (result.success) {
         const onboardingComplete = useAuthStore.getState().onboardingComplete;
         router.replace(onboardingComplete ? '/(tabs)' : '/(auth)/onboarding');
+      } else if (result.error && result.error !== 'Quran sign in was cancelled.') {
+        setQuranError(true);
       }
+    } catch {
+      setQuranError(true);
     } finally {
       setQuranLoading(false);
     }
@@ -198,6 +204,25 @@ export default function LandingScreen() {
                 {quranLoading ? 'Opening Quran.Foundation...' : 'Continue with Quran.Foundation'}
               </Text>
             </TouchableOpacity>
+
+            {/* Inline error banner — shown when Quran OAuth fails */}
+            {quranError && (
+              <View style={styles.errorBanner}>
+                <Ionicons name="warning-outline" size={15} color="#D05228" style={{ marginTop: 1 }} />
+                <View style={{ flex: 1 }}>
+                  <Text style={styles.errorTitle}>Quran.Foundation sign in is unavailable</Text>
+                  <Text style={styles.errorBody}>
+                    Please use email & password instead.{' '}
+                    <Text
+                      style={styles.errorLink}
+                      onPress={() => router.push('/(auth)/login')}
+                    >
+                      Sign in →
+                    </Text>
+                  </Text>
+                </View>
+              </View>
+            )}
           </Animated.View>
 
         </View>
@@ -369,5 +394,35 @@ const styles = StyleSheet.create({
     fontSize: 13,
     color: GOLD,
     letterSpacing: 0.2,
+  },
+
+  // Inline error banner
+  errorBanner: {
+    flexDirection: 'row',
+    alignItems: 'flex-start',
+    gap: 8,
+    width: '100%',
+    backgroundColor: 'rgba(208,82,40,0.12)',
+    borderWidth: 1,
+    borderColor: 'rgba(208,82,40,0.35)',
+    borderRadius: 12,
+    paddingVertical: 12,
+    paddingHorizontal: 14,
+  },
+  errorTitle: {
+    fontFamily: 'Raleway_600SemiBold',
+    fontSize: 13,
+    color: '#E07050',
+    marginBottom: 3,
+  },
+  errorBody: {
+    fontFamily: 'Raleway_400Regular',
+    fontSize: 12,
+    color: 'rgba(240,232,208,0.7)',
+    lineHeight: 18,
+  },
+  errorLink: {
+    fontFamily: 'Raleway_600SemiBold',
+    color: GOLD,
   },
 });

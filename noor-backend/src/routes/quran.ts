@@ -58,7 +58,30 @@ router.post('/oauth/exchange', async (req: Request, res: Response) => {
 
   try {
     const token = await exchangeQuranAuthorizationCode({ code, redirectUri, codeVerifier });
-    res.json(token);
+
+    // Fetch userinfo so the frontend can build a proper user profile even when
+    // the id_token is absent or its claims are sparse.
+    let userinfo: Record<string, any> = {};
+    if (token.access_token) {
+      try {
+        const { default: axios } = await import('axios');
+        const USER_OAUTH_BASE = process.env.QURAN_OAUTH_ENDPOINT ?? 'https://prelive-oauth2.quran.foundation';
+        const userinfoUrl = `${USER_OAUTH_BASE.replace(/\/$/, '')}/userinfo`;
+        const { data } = await axios.get(userinfoUrl, {
+          headers: {
+            Authorization: `Bearer ${token.access_token}`,
+            Accept: 'application/json',
+          },
+          timeout: 8000,
+        });
+        userinfo = data ?? {};
+      } catch (uiErr: any) {
+        // Non-fatal — frontend will fall back to id_token claims
+        console.warn('[quran/oauth/exchange] userinfo fetch failed:', uiErr?.message);
+      }
+    }
+
+    res.json({ ...token, userinfo });
   } catch (err) {
     handleQuranError(res, err, 'Failed to exchange Quran authorization code');
   }

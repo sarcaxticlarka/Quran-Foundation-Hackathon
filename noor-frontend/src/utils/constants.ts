@@ -13,7 +13,7 @@ export const API_TIMEOUT = Number(process.env.EXPO_PUBLIC_API_TIMEOUT ?? 10000);
 export const BACKEND_URL = withHttpScheme(process.env.EXPO_PUBLIC_BACKEND_URL ?? 'http://localhost:3001');
 export const BACKEND_API_KEY = process.env.EXPO_PUBLIC_BACKEND_API_KEY ?? '';
 export const QURAN_OAUTH_ENDPOINT = process.env.EXPO_PUBLIC_QURAN_OAUTH_ENDPOINT ?? 'https://prelive-oauth2.quran.foundation';
-export const QURAN_OAUTH_CLIENT_ID = process.env.EXPO_PUBLIC_OAUTH_CLIENT_ID ?? '17790940-16a4-4afc-8835-6bf6c168a9dc';
+export const QURAN_OAUTH_CLIENT_ID = process.env.EXPO_PUBLIC_OAUTH_CLIENT_ID ?? '3216689e-2f59-43b1-92e5-425853fb4326';
 export const QURAN_OAUTH_REDIRECT_URI = process.env.EXPO_PUBLIC_OAUTH_REDIRECT_URI ?? `${BACKEND_URL}/oauth/callback`;
 
 // Quran
