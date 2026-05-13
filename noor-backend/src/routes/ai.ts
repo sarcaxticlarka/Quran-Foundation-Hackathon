@@ -2,17 +2,21 @@ import { Router } from 'express';
 import axios from 'axios';
 
 const router = Router();
-const GROQ_API_KEY = process.env.GROQ_API_KEY ?? '';
 
 router.post('/chat/completions', async (req, res) => {
   try {
+    const groqApiKey = process.env.GROQ_API_KEY?.trim();
+    if (!groqApiKey) {
+      return res.status(503).json({ error: 'GROQ_API_KEY is not configured on the backend.' });
+    }
+
     const response = await axios.post(
       'https://api.groq.com/openai/v1/chat/completions',
       req.body,
       {
         headers: {
           'Content-Type': 'application/json',
-          Authorization: `Bearer ${GROQ_API_KEY}`,
+          Authorization: `Bearer ${groqApiKey}`,
         },
         timeout: 30000,
       },
@@ -20,7 +24,11 @@ router.post('/chat/completions', async (req, res) => {
     res.json(response.data);
   } catch (err: any) {
     const status = err.response?.status ?? 500;
-    res.status(status).json(err.response?.data ?? { error: 'AI request failed' });
+    const detail = err.response?.data ?? { error: 'AI request failed' };
+    if (status === 401) {
+      return res.status(401).json({ error: 'Groq rejected the backend API key.', detail });
+    }
+    res.status(status).json(detail);
   }
 });
 
