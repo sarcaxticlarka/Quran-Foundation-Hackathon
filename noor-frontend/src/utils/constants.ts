@@ -7,10 +7,12 @@ function withHttpScheme(value: string) {
   return `http://${trimmed}`;
 }
 
+const DEFAULT_PUBLIC_BACKEND_URL = 'https://quran-foundation-hackathon.onrender.com';
+
 // API
-export const API_BASE = withHttpScheme(process.env.EXPO_PUBLIC_API_BASE_URL ?? 'http://localhost:3001');
+export const API_BASE = withHttpScheme(process.env.EXPO_PUBLIC_API_BASE_URL ?? DEFAULT_PUBLIC_BACKEND_URL);
 export const API_TIMEOUT = Number(process.env.EXPO_PUBLIC_API_TIMEOUT ?? 10000);
-export const BACKEND_URL = withHttpScheme(process.env.EXPO_PUBLIC_BACKEND_URL ?? 'http://localhost:3001');
+export const BACKEND_URL = withHttpScheme(process.env.EXPO_PUBLIC_BACKEND_URL ?? DEFAULT_PUBLIC_BACKEND_URL);
 export const BACKEND_API_KEY = process.env.EXPO_PUBLIC_BACKEND_API_KEY ?? '';
 export const QURAN_OAUTH_ENDPOINT = process.env.EXPO_PUBLIC_QURAN_OAUTH_ENDPOINT ?? 'https://prelive-oauth2.quran.foundation';
 export const QURAN_OAUTH_CLIENT_ID = process.env.EXPO_PUBLIC_OAUTH_CLIENT_ID ?? '3216689e-2f59-43b1-92e5-425853fb4326';
