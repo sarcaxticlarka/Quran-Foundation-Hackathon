@@ -17,10 +17,25 @@ export default function LoginScreen() {
   const [quranLoading, setQuranLoading] = useState(false);
   const [quranError, setQuranError] = useState<string | null>(null);
   const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [slowNetwork, setSlowNetwork] = useState(false);
   const shakeAnim = useRef(new Animated.Value(0)).current;
   const passwordRef = useRef<TextInput>(null);
+  const slowNetworkTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const store = useAuthStore;
   useEffect(() => { store.getState().setError(null); }, []);
+
+  // Show "waking up server..." hint after 5s of loading
+  useEffect(() => {
+    if (isLoading || quranLoading) {
+      slowNetworkTimer.current = setTimeout(() => setSlowNetwork(true), 5000);
+    } else {
+      if (slowNetworkTimer.current) clearTimeout(slowNetworkTimer.current);
+      setSlowNetwork(false);
+    }
+    return () => {
+      if (slowNetworkTimer.current) clearTimeout(slowNetworkTimer.current);
+    };
+  }, [isLoading, quranLoading]);
 
   const shake = () => {
     Animated.sequence([
@@ -65,6 +80,12 @@ export default function LoginScreen() {
       setQuranLoading(false);
     }
   };
+
+  const loadingLabel = isLoading
+    ? (slowNetwork ? 'Waking up server...' : 'Signing in...')
+    : quranLoading
+    ? (slowNetwork ? 'Connecting...' : 'Connecting to Quran.Foundation...')
+    : '';
 
   return (
     <SafeAreaView style={styles.container} edges={['top', 'bottom']}>
@@ -113,6 +134,7 @@ export default function LoginScreen() {
                   autoCorrect={false}
                   returnKeyType="next"
                   onSubmitEditing={() => passwordRef.current?.focus()}
+                  editable={!isLoading && !quranLoading}
                 />
               </View>
               {errors.email && <Text style={styles.fieldError}>{errors.email}</Text>}
@@ -132,6 +154,7 @@ export default function LoginScreen() {
                   secureTextEntry={!showPassword}
                   returnKeyType="done"
                   onSubmitEditing={handleSignIn}
+                  editable={!isLoading && !quranLoading}
                 />
                 <TouchableOpacity style={styles.eyeBtn} onPress={() => setShowPassword((s) => !s)}>
                   <Ionicons name={showPassword ? 'eye-off-outline' : 'eye-outline'} size={18} color={Colors.textMuted} />
@@ -140,16 +163,29 @@ export default function LoginScreen() {
               {errors.password && <Text style={styles.fieldError}>{errors.password}</Text>}
             </View>
 
-            <TouchableOpacity style={[styles.btn, isLoading && styles.btnDisabled]} onPress={handleSignIn} disabled={isLoading || quranLoading} activeOpacity={0.85}>
+            <TouchableOpacity
+              style={[styles.btn, (isLoading || quranLoading) && styles.btnDisabled]}
+              onPress={handleSignIn}
+              disabled={isLoading || quranLoading}
+              activeOpacity={0.85}
+            >
               {isLoading ? (
                 <View style={styles.primaryLoadingRow}>
                   <ActivityIndicator color={Colors.darkBg} size="small" />
-                  <Text style={styles.btnText}>Signing in...</Text>
+                  <Text style={styles.btnText}>{loadingLabel}</Text>
                 </View>
               ) : (
                 <Text style={styles.btnText}>Sign In</Text>
               )}
             </TouchableOpacity>
+
+            {/* Slow network hint */}
+            {(isLoading || quranLoading) && slowNetwork && (
+              <View style={styles.slowHint}>
+                <Ionicons name="time-outline" size={14} color={Colors.textMuted} />
+                <Text style={styles.slowHintText}>Server is waking up, this may take up to 30 seconds…</Text>
+              </View>
+            )}
 
             <View style={styles.divider}>
               <View style={styles.dividerLine} />
@@ -158,7 +194,7 @@ export default function LoginScreen() {
             </View>
 
             <TouchableOpacity
-              style={[styles.quranBtn, quranLoading && styles.btnDisabled]}
+              style={[styles.quranBtn, (quranLoading || isLoading) && styles.btnDisabled]}
               onPress={handleQuranSignIn}
               disabled={quranLoading || isLoading}
               activeOpacity={0.85}
@@ -166,7 +202,7 @@ export default function LoginScreen() {
               {quranLoading ? (
                 <View style={styles.loadingRow}>
                   <ActivityIndicator color={Colors.gold} size="small" />
-                  <Text style={styles.quranBtnText}>Connecting to Quran.Foundation...</Text>
+                  <Text style={styles.quranBtnText}>{loadingLabel}</Text>
                 </View>
               ) : (
                 <>
@@ -234,6 +270,8 @@ const styles = StyleSheet.create({
   quranErrorHint: { fontFamily: 'Raleway_600SemiBold', color: Colors.textMuted, fontSize: 12, lineHeight: 18 },
   outlineBtn: { borderWidth: 1.5, borderColor: Colors.darkBorder, borderRadius: 50, paddingVertical: 14, alignItems: 'center' },
   outlineBtnText: { fontFamily: 'Raleway_700Bold', color: Colors.textSecondary, fontSize: 15 },
+  slowHint: { flexDirection: 'row', alignItems: 'center', gap: 6, paddingHorizontal: 4 },
+  slowHintText: { fontFamily: 'Raleway_400Regular', fontSize: 12, color: Colors.textMuted, flex: 1, lineHeight: 18 },
   inscription: { alignItems: 'center', paddingTop: 32, gap: 6 },
   arabic: { fontFamily: 'CormorantGaramond_400Regular_Italic', fontSize: 20, color: Colors.gold, opacity: 0.7 },
   arabicTrans: { fontFamily: 'Raleway_300Light', fontSize: 12, color: Colors.textMuted, fontStyle: 'italic' },

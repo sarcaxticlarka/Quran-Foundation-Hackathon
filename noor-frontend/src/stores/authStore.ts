@@ -42,7 +42,7 @@ interface AuthState {
 
 export const useAuthStore = create<AuthState>()(
   persist(
-    (set, get) => ({
+    (set) => ({
       isAuthenticated: false,
       authProvider: null,
       token: null,
@@ -54,7 +54,15 @@ export const useAuthStore = create<AuthState>()(
       _hydrated: false,
 
       logout: async () => {
-        set({ isAuthenticated: false, authProvider: null, token: null, error: null, user: null, isLoading: false, onboardingComplete: false });
+        set({
+          isAuthenticated: false,
+          authProvider: null,
+          token: null,
+          error: null,
+          user: null,
+          isLoading: false,
+          onboardingComplete: false,
+        });
       },
 
       setAuthenticatedUser: (authProvider, token, user, onboardingComplete) => {
@@ -63,42 +71,50 @@ export const useAuthStore = create<AuthState>()(
           token,
           user,
           isAuthenticated: true,
+          isLoading: false,
           error: null,
           onboardingComplete: onboardingComplete ?? s.onboardingByUserId[user.id] ?? false,
-          onboardingByUserId: onboardingComplete === true
-            ? { ...s.onboardingByUserId, [user.id]: true }
-            : s.onboardingByUserId,
+          onboardingByUserId:
+            onboardingComplete === true
+              ? { ...s.onboardingByUserId, [user.id]: true }
+              : s.onboardingByUserId,
         }));
       },
-      setLoading:             (isLoading) => set({ isLoading }),
-      setError:               (error)     => set({ error }),
-      setOnboardingComplete:  (v)         =>
+      setLoading: (isLoading) => set({ isLoading }),
+      setError: (error) => set({ error }),
+      setOnboardingComplete: (v) =>
         set((s) => ({
           onboardingComplete: v,
-          onboardingByUserId: s.user?.id && v
-            ? { ...s.onboardingByUserId, [s.user.id]: true }
-            : s.onboardingByUserId,
+          onboardingByUserId:
+            s.user?.id && v
+              ? { ...s.onboardingByUserId, [s.user.id]: true }
+              : s.onboardingByUserId,
         })),
-      updateProfile:          (updates)   =>
+      updateProfile: (updates) =>
         set((s) => ({ user: s.user ? { ...s.user, ...updates } : null })),
-      _setHydrated:           ()          => set({ _hydrated: true }),
+      _setHydrated: () => set({ _hydrated: true }),
     }),
     {
       name: 'noor-auth-v2',
       storage: createJSONStorage(() => AsyncStorage),
       partialize: (s) => ({
-        isAuthenticated:    s.isAuthenticated,
-        authProvider:       s.authProvider,
-        token:              s.token,
-        user:               s.user,
+        isAuthenticated: s.isAuthenticated,
+        authProvider: s.authProvider,
+        token: s.token,
+        user: s.user,
         onboardingComplete: s.onboardingComplete,
         onboardingByUserId: s.onboardingByUserId,
+        // isLoading and error are intentionally excluded — always reset to false/null on launch
         // _hydrated is intentionally excluded — it must always start false
       }),
       onRehydrateStorage: () => (state) => {
         // Called once AsyncStorage has finished loading into the store.
-        // This is the signal that onboardingComplete reflects the true persisted value.
-        state?._setHydrated();
+        // Always reset transient UI state so a crashed session never leaves a stuck spinner.
+        if (state) {
+          state.isLoading = false;
+          state.error = null;
+          state._setHydrated();
+        }
       },
     },
   ),

@@ -9,7 +9,7 @@ interface EmailAuthResponse {
 
 const authApi = axios.create({
   baseURL: `${BACKEND_URL}/api/auth`,
-  timeout: 15000,
+  timeout: 30000,
   headers: {
     Accept: 'application/json',
     'Content-Type': 'application/json',
@@ -18,6 +18,12 @@ const authApi = axios.create({
 });
 
 function readError(err: any, fallback: string) {
+  if (err?.code === 'ECONNABORTED' || err?.message?.includes('timeout')) {
+    return 'Request timed out. The server may be waking up — please try again in a moment.';
+  }
+  if (err?.code === 'ERR_NETWORK' || err?.message === 'Network Error') {
+    return 'Cannot reach the server. Check your internet connection and try again.';
+  }
   return err?.response?.data?.error ?? err?.message ?? fallback;
 }
 
