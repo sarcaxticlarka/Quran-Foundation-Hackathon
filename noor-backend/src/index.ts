@@ -18,13 +18,12 @@ import authRouter from './routes/auth';
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-// If the app is running behind a proxy (load balancer, reverse proxy, or a
-// hosting provider that sets the X-Forwarded-* headers), enable Express
-// `trust proxy` so middleware like `express-rate-limit` can rely on the
-// X-Forwarded-For header to identify the client's IP correctly.
-// Set the environment variable `TRUST_PROXY=true` in production if needed.
+// Trust exactly 1 proxy hop (Render.com's load balancer).
+// Using `true` is too permissive and causes express-rate-limit to throw
+// ERR_ERL_PERMISSIVE_TRUST_PROXY. A numeric value tells Express to trust
+// only the first X-Forwarded-For entry, which is safe behind a single proxy.
 if (process.env.TRUST_PROXY === 'true') {
-  app.set('trust proxy', true);
+  app.set('trust proxy', 1);
 }
 
 // ── Security
