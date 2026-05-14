@@ -15,7 +15,7 @@
 
 ---
 
-## 🔗 Quick Links
+## Quick Links
 
 - **Backend API Repository:** [sarcaxticlarka/noor-backend](https://github.com/sarcaxticlarka/noor-backend)
 - **Download App (APK):** [Google Drive Link](https://drive.google.com/file/d/13iLriEqNQ0ihGIOpUa4iDFVNnVLkP7ZK/view?usp=drivesdk)*
