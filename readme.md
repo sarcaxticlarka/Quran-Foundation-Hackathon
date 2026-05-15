@@ -1,30 +1,38 @@
 # NOOR — The Spiritual Operating System
 
-> **Quran Foundation Hackathon 2026** · React Native · Expo 54 · TypeScript  
- 
+
+> **Quran Foundation Hackathon 2026** · React Native · Expo 54 · TypeScript 
+
 
 ```
-  ███╗   ██╗ ██████╗  ██████╗ ██████╗
-  ████╗  ██║██╔═══██╗██╔═══██╗██╔══██╗
-  ██╔██╗ ██║██║   ██║██║   ██║██████╔╝
-  ██║╚██╗██║██║   ██║██║   ██║██╔══██╗
-  ██║ ╚████║╚██████╔╝╚██████╔╝██║  ██║
-  ╚═╝  ╚═══╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝
-       نور  ·  Light  ·  The Spiritual OS
+ ███╗   ██╗ ██████╗  ██████╗ ██████╗
+ ████╗  ██║██╔═══██╗██╔═══██╗██╔══██╗
+ ██╔██╗ ██║██║   ██║██║   ██║██████╔╝
+ ██║╚██╗██║██║   ██║██║   ██║██╔══██╗
+ ██║ ╚████║╚██████╔╝╚██████╔╝██║  ██║
+ ╚═╝  ╚═══╝ ╚═════╝  ╚═════╝ ╚═╝  ╚═╝
+      نور  ·  Light  ·  The Spiritual OS
 ```
+
 
 ---
 
+
 ## 🔗 Quick Links
+
 
 - **Download App (APK):** [Google Drive Link](https://drive.google.com/file/d/1Yd6P8mir7YhMkuJgYvUi0kFS8OQY9uFU/view?usp=drivesdk)*
 
+
 - **Website for Direct APK Download:** [NOOR Web Download](https://noor-web-download.netlify.app/)
+
 
 - **YouTube Demo Video:** [Watch on YouTube](https://youtu.be/TpVoa32lhlE)
 ---
 
+
 ## Table of Contents
+
 
 1. [Overview](#overview)
 2. [Feature Reference](#feature-reference)
@@ -42,11 +50,16 @@
 14. [Setup & Running](#setup--running)
 
 
+
+
 ---
+
 
 ## Overview
 
+
 **Noor** ("نور", meaning "light") is a full-featured Islamic companion app targeting the single biggest problem in Muslim tech: *300 million people read the Quran during Ramadan — most stop by Eid*. Noor is built to solve post-Ramadan disengagement through three user archetypes fused into one platform:
+
 
 | Archetype | Pain Point | Noor Solution |
 |-----------|-----------|---------------|
@@ -54,15 +67,21 @@
 | Social Learner | Loses motivation alone | Micro-Halaqas + group lantern |
 | Knowledge Seeker | Wants depth, not surface reading | Knowledge graph + linguistic roots |
 
+
 **Tech**: Expo 54 · React Native 0.81 · TypeScript 5.9 · Zustand 5 · TanStack React Query 5 · Noor email auth · Prisma · Neon Postgres · quran.com v4 API · Groq AI
+
 
 ---
 
+
 ## Feature Reference
+
 
 ### 1. Authentication & Onboarding
 
+
 **Files**: `app/(auth)/login.tsx` · `app/(auth)/signup.tsx` · `app/(auth)/onboarding.tsx`
+
 
 | Feature | Implementation |
 |---------|---------------|
@@ -75,11 +94,15 @@
 | Guard | Root `_layout.tsx` checks auth + per-user onboarding state before routing |
 | Onboarding persistence | Completion is saved in Neon as `profiles.onboarding_done` and locally in `onboardingByUserId`, so madhab/reading-level setup is shown once per user |
 
+
 ---
+
 
 ### 2. Home Screen
 
+
 **File**: `app/(tabs)/index.tsx`
+
 
 | Feature | Implementation |
 |---------|---------------|
@@ -90,20 +113,25 @@
 | Offline banner | `OfflineBanner` — animated red strip slides in when `useNetworkStatus()` returns false |
 | Error boundary | Class-based `ErrorBoundary` wraps all tab screens; shows "Try Again" on unhandled crash |
 
+
 **Engagement reordering algorithm** (`src/stores/engagementStore.ts`):
 ```
 orderedFeatures = [
-  'Recite',                          // always pinned first
-  ...middle.sortBy(taps, desc),      // Review, Explore, Journal, Halaqa
-  'Settings'                         // always pinned last
+ 'Recite',                          // always pinned first
+ ...middle.sortBy(taps, desc),      // Review, Explore, Journal, Halaqa
+ 'Settings'                         // always pinned last
 ]
 ```
 
+
 ---
+
 
 ### 3. Dashboard
 
+
 **Files**: `app/(tabs)/dashboard.tsx` · `app/dashboard/session.tsx` · `app/dashboard/streak.tsx` · `app/dashboard/goals.tsx`
+
 
 | Feature | Implementation |
 |---------|---------------|
@@ -114,11 +142,15 @@ orderedFeatures = [
 | Goals | CRUD via backend DB API → Prisma/Neon. Progress bars per goal |
 | Personal best | `longestStreak` auto-updated in `streakStore` on each record |
 
+
 ---
+
 
 ### 4. Quran Explorer
 
+
 **Files**: `app/(tabs)/explore.tsx` · `app/explore/roots.tsx` · `app/explore/graph.tsx` · `app/explore/concept/[slug].tsx` · `app/explore/word/[word].tsx` · `app/quran/[surahId].tsx`
+
 
 | Feature | Implementation |
 |---------|---------------|
@@ -132,11 +164,15 @@ orderedFeatures = [
 | Bookmarking | Save any verse to `savedStore` + backend DB API / Neon `bookmarks` table |
 | Audio recitation | Stream via `audioApi`; `MiniPlayer` component persists across screens |
 
+
 ---
+
 
 ### 5. Spaced Repetition Review
 
+
 **Files**: `app/profile/review/queue.tsx` · `app/profile/review/flashcard.tsx` · `app/profile/review/complete.tsx`
+
 
 | Feature | Implementation |
 |---------|---------------|
@@ -146,11 +182,15 @@ orderedFeatures = [
 | Completion summary | Cards reviewed, time spent, next due date |
 | Persistence | `reviewStore` → AsyncStorage; due dates survive app restart |
 
+
 ---
+
 
 ### 6. Crisis Support
 
+
 **Files**: `app/crisis/entry.tsx` · `app/crisis/dhikr.tsx` · `app/crisis/result.tsx`
+
 
 | Feature | Implementation |
 |---------|---------------|
@@ -159,11 +199,15 @@ orderedFeatures = [
 | Post-session result | Mood after vs. before delta, recommended follow-up verses |
 | Session history | `crisisStore` logs each session (mood before/after, dhikr used, duration) |
 
+
 ---
+
 
 ### 7. Community — Halaqa
 
+
 **Files**: `app/community/halaqa/index.tsx` · `app/community/halaqa/[id].tsx` · `app/community/halaqa/insight.tsx` · `app/community/halaqa/lantern.tsx` · `app/community/recite/`
+
 
 | Feature | Implementation |
 |---------|---------------|
@@ -175,11 +219,15 @@ orderedFeatures = [
 | Invite flow | Each created circle gets an invite code; users can join through the Halaqa screen |
 | Sync | `halaqaStore` caches membership locally; source of truth is Prisma/Neon via backend routes |
 
+
 ---
+
 
 ### 8. Profile & Identity
 
+
 **Files**: `app/profile/identity.tsx` · `app/(tabs)/profile.tsx` · `app/profile/share.tsx`
+
 
 | Feature | Implementation |
 |---------|---------------|
@@ -190,11 +238,15 @@ orderedFeatures = [
 | Dynamic rank | Seeker → Student → Diligent → Preserver → Scholar (streak-based thresholds: 0 / 7 / 14 / 30 / 60 days) |
 | Journey share card | Portrait card: `CARD_W = screenWidth − 28`, `CARD_H = CARD_W × 1.42`. Layers: 4-gradient dark parchment + Arabic "الله" watermark + mosque skyline + crescent moon + double gold frame + corner brackets + Bismillah header + rank badge + stats + Quranic ayah + footer. Captured via `react-native-view-shot` and saved via `expo-media-library` |
 
+
 ---
+
 
 ### 9. Journal & Reflection
 
+
 **Files**: `app/profile/journal.tsx` · `app/profile/reflection/`
+
 
 | Feature | Implementation |
 |---------|---------------|
@@ -202,11 +254,15 @@ orderedFeatures = [
 | AI reflection | `groqAI.ts` — journal content sent to Groq LLM; returns spiritual reflection prompts |
 | Reflection history | Browse and search past reflections |
 
+
 ---
+
 
 ### 10. Library & Bookmarks
 
+
 **File**: `app/profile/library.tsx`
+
 
 | Feature | Implementation |
 |---------|---------------|
@@ -214,11 +270,15 @@ orderedFeatures = [
 | Collections | User-created named verse lists (e.g. "Verses on Patience") |
 | API layer | `src/services/db.ts` calls protected backend DB endpoints |
 
+
 ---
+
 
 ### 11. Settings
 
+
 **File**: `app/settings.tsx`
+
 
 | Feature | Implementation |
 |---------|---------------|
@@ -228,11 +288,15 @@ orderedFeatures = [
 | Nudge times | Checkboxes for Fajr/Dhuhr/Asr/Maghrib/Isha |
 | Sign out | Alert confirmation → local Noor session clear for email and Quran OAuth users |
 
+
 ---
+
 
 ### 12. Notifications
 
+
 **File**: `src/services/notifications.ts`
+
 
 | Feature | Implementation |
 |---------|---------------|
@@ -241,11 +305,15 @@ orderedFeatures = [
 | Halaqa alerts | Fires 15 min before a joined halaqa session |
 | Expo Go guard | `Constants.executionEnvironment === 'storeClient'` check prevents module load entirely in Expo Go (SDK 53 removed remote push) |
 
+
 ---
+
 
 ### 13. Offline Support
 
+
 **Files**: `src/hooks/useNetworkStatus.ts` · `src/components/OfflineBanner.tsx`
+
 
 | Feature | Implementation |
 |---------|---------------|
@@ -254,9 +322,12 @@ orderedFeatures = [
 | Animated banner | `Animated.timing` slides banner down from top when offline; reverses when reconnected |
 | Error boundary | Class `ErrorBoundary` in `src/components/ErrorBoundary.tsx` catches tab-level crashes; renders "Try Again" recovery UI |
 
+
 ---
 
+
 ## System Architecture
+
 
 ```
 ┌───────────────────────────────────────────────────────────────────┐
@@ -281,488 +352,564 @@ orderedFeatures = [
 │  │  notifications · audioApi · Quran OAuth helpers            │   │
 │  └────────────────────────────────────────────────────────────┘   │
 └───────────────────────────────────────────────────────────────────┘
-          │                        │                   │
-   quran.com v4 API         Noor Backend          Groq LLM API
-   (verses/tafsir/          (Email/Quran auth,    (journal AI
-    translations)            Prisma + Neon DB,     reflection)
-                             Quran proxy)
+         │                        │                   │
+  quran.com v4 API         Noor Backend          Groq LLM API
+  (verses/tafsir/          (Email/Quran auth,    (journal AI
+   translations)            Prisma + Neon DB,     reflection)
+                            Quran proxy)
 ```
 
+
 ---
+
 
 ## ER Diagram
 
+
 ```mermaid
 erDiagram
-    USERS {
-        uuid   id             PK
-        string email
-        string name
-        string madhab
-        string reading_level
-        int    daily_goal
-        int    translation_id
-        bool   nudges_enabled
-        text[] nudge_times
-        bool   review_reminders
-        bool   halaqa_alerts
-        timestamp created_at
-        timestamp updated_at
-    }
+   USERS {
+       uuid   id             PK
+       string email
+       string name
+       string madhab
+       string reading_level
+       int    daily_goal
+       int    translation_id
+       bool   nudges_enabled
+       text[] nudge_times
+       bool   review_reminders
+       bool   halaqa_alerts
+       timestamp created_at
+       timestamp updated_at
+   }
 
-    STREAK_DAYS {
-        uuid      id             PK
-        uuid      user_id        FK
-        date      date
-        bool      completed
-        int       verses_read
-        int       dhikr_count
-        int       session_minutes
-        timestamp recorded_at
-    }
 
-    GOALS {
-        uuid   id         PK
-        uuid   user_id    FK
-        string type
-        int    target
-        int    current
-        date   date
-        bool   completed
-    }
+   STREAK_DAYS {
+       uuid      id             PK
+       uuid      user_id        FK
+       date      date
+       bool      completed
+       int       verses_read
+       int       dhikr_count
+       int       session_minutes
+       timestamp recorded_at
+   }
 
-    BOOKMARKS {
-        uuid      id         PK
-        uuid      user_id    FK
-        string    verse_key
-        string    note
-        timestamp created_at
-    }
 
-    COLLECTIONS {
-        uuid      id          PK
-        uuid      user_id     FK
-        string    name
-        string    description
-        timestamp created_at
-    }
+   GOALS {
+       uuid   id         PK
+       uuid   user_id    FK
+       string type
+       int    target
+       int    current
+       date   date
+       bool   completed
+   }
 
-    COLLECTION_VERSES {
-        uuid   id            PK
-        uuid   collection_id FK
-        string verse_key
-        int    position
-    }
 
-    REVIEW_CARDS {
-        uuid      id               PK
-        uuid      user_id          FK
-        string    verse_key
-        float     ease_factor
-        int       interval_days
-        int       repetitions
-        timestamp next_review_at
-        timestamp last_reviewed_at
-    }
+   BOOKMARKS {
+       uuid      id         PK
+       uuid      user_id    FK
+       string    verse_key
+       string    note
+       timestamp created_at
+   }
 
-    HALAQAS {
-        uuid      id           PK
-        uuid      host_id      FK
-        string    name
-        string    description
-        timestamp scheduled_at
-        bool      is_active
-        timestamp created_at
-    }
 
-    HALAQA_MEMBERS {
-        uuid      id          PK
-        uuid      halaqa_id   FK
-        uuid      user_id     FK
-        string    role
-        timestamp joined_at
-    }
+   COLLECTIONS {
+       uuid      id          PK
+       uuid      user_id     FK
+       string    name
+       string    description
+       timestamp created_at
+   }
 
-    HALAQA_INSIGHTS {
-        uuid      id          PK
-        uuid      halaqa_id   FK
-        uuid      user_id     FK
-        string    content
-        string    verse_key
-        timestamp created_at
-    }
 
-    CRISIS_SESSIONS {
-        uuid      id               PK
-        uuid      user_id          FK
-        int       mood_before
-        int       mood_after
-        text[]    dhikr_used
-        int       duration_seconds
-        timestamp created_at
-    }
+   COLLECTION_VERSES {
+       uuid   id            PK
+       uuid   collection_id FK
+       string verse_key
+       int    position
+   }
 
-    JOURNALS {
-        uuid      id             PK
-        uuid      user_id        FK
-        text      content
-        text      ai_reflection
-        date      entry_date
-        timestamp created_at
-        timestamp updated_at
-    }
 
-    NOTIFICATIONS {
-        uuid      id           PK
-        uuid      user_id      FK
-        string    type
-        string    title
-        string    body
-        timestamp scheduled_at
-        bool      delivered
-        jsonb     data
-    }
+   REVIEW_CARDS {
+       uuid      id               PK
+       uuid      user_id          FK
+       string    verse_key
+       float     ease_factor
+       int       interval_days
+       int       repetitions
+       timestamp next_review_at
+       timestamp last_reviewed_at
+   }
 
-    USERS          ||--o{ STREAK_DAYS      : "tracks"
-    USERS          ||--o{ GOALS            : "sets"
-    USERS          ||--o{ BOOKMARKS        : "saves"
-    USERS          ||--o{ COLLECTIONS      : "creates"
-    USERS          ||--o{ REVIEW_CARDS     : "studies"
-    USERS          ||--o{ CRISIS_SESSIONS  : "logs"
-    USERS          ||--o{ JOURNALS         : "writes"
-    USERS          ||--o{ NOTIFICATIONS    : "receives"
-    USERS          ||--o{ HALAQA_MEMBERS   : "joins"
-    USERS          ||--o{ HALAQAS          : "hosts"
-    COLLECTIONS    ||--o{ COLLECTION_VERSES: "contains"
-    HALAQAS        ||--o{ HALAQA_MEMBERS   : "has"
-    HALAQAS        ||--o{ HALAQA_INSIGHTS  : "receives"
+
+   HALAQAS {
+       uuid      id           PK
+       uuid      host_id      FK
+       string    name
+       string    description
+       timestamp scheduled_at
+       bool      is_active
+       timestamp created_at
+   }
+
+
+   HALAQA_MEMBERS {
+       uuid      id          PK
+       uuid      halaqa_id   FK
+       uuid      user_id     FK
+       string    role
+       timestamp joined_at
+   }
+
+
+   HALAQA_INSIGHTS {
+       uuid      id          PK
+       uuid      halaqa_id   FK
+       uuid      user_id     FK
+       string    content
+       string    verse_key
+       timestamp created_at
+   }
+
+
+   CRISIS_SESSIONS {
+       uuid      id               PK
+       uuid      user_id          FK
+       int       mood_before
+       int       mood_after
+       text[]    dhikr_used
+       int       duration_seconds
+       timestamp created_at
+   }
+
+
+   JOURNALS {
+       uuid      id             PK
+       uuid      user_id        FK
+       text      content
+       text      ai_reflection
+       date      entry_date
+       timestamp created_at
+       timestamp updated_at
+   }
+
+
+   NOTIFICATIONS {
+       uuid      id           PK
+       uuid      user_id      FK
+       string    type
+       string    title
+       string    body
+       timestamp scheduled_at
+       bool      delivered
+       jsonb     data
+   }
+
+
+   USERS          ||--o{ STREAK_DAYS      : "tracks"
+   USERS          ||--o{ GOALS            : "sets"
+   USERS          ||--o{ BOOKMARKS        : "saves"
+   USERS          ||--o{ COLLECTIONS      : "creates"
+   USERS          ||--o{ REVIEW_CARDS     : "studies"
+   USERS          ||--o{ CRISIS_SESSIONS  : "logs"
+   USERS          ||--o{ JOURNALS         : "writes"
+   USERS          ||--o{ NOTIFICATIONS    : "receives"
+   USERS          ||--o{ HALAQA_MEMBERS   : "joins"
+   USERS          ||--o{ HALAQAS          : "hosts"
+   COLLECTIONS    ||--o{ COLLECTION_VERSES: "contains"
+   HALAQAS        ||--o{ HALAQA_MEMBERS   : "has"
+   HALAQAS        ||--o{ HALAQA_INSIGHTS  : "receives"
 ```
 
+
 ---
+
 
 ## Use Case Diagram
 
+
 ```mermaid
 flowchart TD
-    Guest([Guest])
-    User([Authenticated User])
-    Host([Halaqa Host])
+   Guest([Guest])
+   User([Authenticated User])
+   Host([Halaqa Host])
 
-    subgraph Auth[Authentication]
-        UC1[Sign Up]
-        UC2[Log In via Email]
-        UC3[Log In via Google OAuth]
-        UC4[Complete Onboarding Wizard]
-    end
 
-    subgraph Quran[Quran Study]
-        UC5[Browse All 114 Surahs]
-        UC6[Read Verses with Translation]
-        UC7[Switch Translation Language]
-        UC8[Open Tafsir Commentary]
-        UC9[Stream Audio Recitation]
-        UC10[Bookmark a Verse]
-        UC11[Explore Arabic Word Roots]
-        UC12[View Concept Knowledge Graph]
-    end
+   subgraph Auth[Authentication]
+       UC1[Sign Up]
+       UC2[Log In via Email]
+       UC3[Log In via Google OAuth]
+       UC4[Complete Onboarding Wizard]
+   end
 
-    subgraph Worship[Daily Worship]
-        UC13[Log Daily Session]
-        UC14[Track Streak & Heatmap]
-        UC15[Set & Monitor Goals]
-        UC16[Use Dhikr Counter]
-        UC17[View Growth Rings]
-    end
 
-    subgraph Review[Spaced Repetition]
-        UC18[Add Verse to Review Queue]
-        UC19[Run Flashcard Session]
-        UC20[Rate Card Difficulty]
-        UC21[View Review Progress]
-    end
+   subgraph Quran[Quran Study]
+       UC5[Browse All 114 Surahs]
+       UC6[Read Verses with Translation]
+       UC7[Switch Translation Language]
+       UC8[Open Tafsir Commentary]
+       UC9[Stream Audio Recitation]
+       UC10[Bookmark a Verse]
+       UC11[Explore Arabic Word Roots]
+       UC12[View Concept Knowledge Graph]
+   end
 
-    subgraph Community[Community]
-        UC22[Create Halaqa Circle]
-        UC23[Join Halaqa Circle]
-        UC24[Post Insight to Circle]
-        UC25[View Group Lantern]
-        UC26[Start Lantern Ceremony]
-        UC27[Collaborative Recitation]
-    end
 
-    subgraph Crisis[Wellbeing]
-        UC28[Enter Crisis Flow]
-        UC29[Follow Guided Dhikr]
-        UC30[Log Mood Before & After]
-        UC31[Write Journal Entry]
-        UC32[Receive AI Reflection]
-    end
+   subgraph Worship[Daily Worship]
+       UC13[Log Daily Session]
+       UC14[Track Streak & Heatmap]
+       UC15[Set & Monitor Goals]
+       UC16[Use Dhikr Counter]
+       UC17[View Growth Rings]
+   end
 
-    subgraph Profile[Profile & Sharing]
-        UC33[Edit Profile & Preferences]
-        UC34[View Spiritual Rank Badge]
-        UC35[Generate Journey Share Card]
-        UC36[Save Card to Gallery]
-        UC37[Share Card Externally]
-        UC38[Manage Verse Collections]
-    end
 
-    subgraph Notifs[Notifications]
-        UC39[Enable Prayer Time Reminders]
-        UC40[Schedule Review Reminder]
-        UC41[Receive Halaqa Alerts]
-    end
+   subgraph Review[Spaced Repetition]
+       UC18[Add Verse to Review Queue]
+       UC19[Run Flashcard Session]
+       UC20[Rate Card Difficulty]
+       UC21[View Review Progress]
+   end
 
-    Guest --> UC1 & UC2 & UC3
-    UC1 & UC2 & UC3 --> UC4 --> User
 
-    User --> UC5 & UC6 & UC7 & UC8 & UC9 & UC10 & UC11 & UC12
-    User --> UC13 & UC14 & UC15 & UC16 & UC17
-    User --> UC18 & UC19 & UC20 & UC21
-    User --> UC23 & UC24 & UC25 & UC27
-    User --> UC28 & UC29 & UC30 & UC31 & UC32
-    User --> UC33 & UC34 & UC35 & UC36 & UC37 & UC38
-    User --> UC39 & UC40 & UC41
+   subgraph Community[Community]
+       UC22[Create Halaqa Circle]
+       UC23[Join Halaqa Circle]
+       UC24[Post Insight to Circle]
+       UC25[View Group Lantern]
+       UC26[Start Lantern Ceremony]
+       UC27[Collaborative Recitation]
+   end
 
-    Host --> UC22 & UC26
+
+   subgraph Crisis[Wellbeing]
+       UC28[Enter Crisis Flow]
+       UC29[Follow Guided Dhikr]
+       UC30[Log Mood Before & After]
+       UC31[Write Journal Entry]
+       UC32[Receive AI Reflection]
+   end
+
+
+   subgraph Profile[Profile & Sharing]
+       UC33[Edit Profile & Preferences]
+       UC34[View Spiritual Rank Badge]
+       UC35[Generate Journey Share Card]
+       UC36[Save Card to Gallery]
+       UC37[Share Card Externally]
+       UC38[Manage Verse Collections]
+   end
+
+
+   subgraph Notifs[Notifications]
+       UC39[Enable Prayer Time Reminders]
+       UC40[Schedule Review Reminder]
+       UC41[Receive Halaqa Alerts]
+   end
+
+
+   Guest --> UC1 & UC2 & UC3
+   UC1 & UC2 & UC3 --> UC4 --> User
+
+
+   User --> UC5 & UC6 & UC7 & UC8 & UC9 & UC10 & UC11 & UC12
+   User --> UC13 & UC14 & UC15 & UC16 & UC17
+   User --> UC18 & UC19 & UC20 & UC21
+   User --> UC23 & UC24 & UC25 & UC27
+   User --> UC28 & UC29 & UC30 & UC31 & UC32
+   User --> UC33 & UC34 & UC35 & UC36 & UC37 & UC38
+   User --> UC39 & UC40 & UC41
+
+
+   Host --> UC22 & UC26
 ```
 
+
 ---
+
 
 ## Component Hierarchy
 
+
 ```mermaid
 graph TD
-    Root["app/_layout.tsx\n(QueryClient · FontLoader · AuthGuard)"]
+   Root["app/_layout.tsx\n(QueryClient · FontLoader · AuthGuard)"]
 
-    Root --> AuthScreens["(auth)/\nlogin · signup · onboarding"]
-    Root --> TabNav["(tabs)/_layout.tsx\n(ErrorBoundary · OfflineBanner · NotificationBar)"]
 
-    TabNav --> Home["index.tsx — Home"]
-    TabNav --> Dash["dashboard.tsx — Dashboard"]
-    TabNav --> Expl["explore.tsx — Explore"]
-    TabNav --> Comm["community.tsx — Community"]
-    TabNav --> Prof["profile.tsx — Profile"]
+   Root --> AuthScreens["(auth)/\nlogin · signup · onboarding"]
+   Root --> TabNav["(tabs)/_layout.tsx\n(ErrorBoundary · OfflineBanner · NotificationBar)"]
 
-    Home --> VOD["VerseOfDay widget"]
-    Home --> PW["PrayerTimesWidget"]
-    Home --> QA["QuickActions grid\n(engagementStore order)"]
-    Home --> SBC["StreakBreakCard\n(when streak=0)"]
 
-    Dash --> GR["GrowthRings (SVG)"]
-    Dash --> HM["HeatmapChart (Victory)"]
-    Dash --> ST["StreakTimeline"]
-    Dash --> GP["Goals Progress bars"]
+   TabNav --> Home["index.tsx — Home"]
+   TabNav --> Dash["dashboard.tsx — Dashboard"]
+   TabNav --> Expl["explore.tsx — Explore"]
+   TabNav --> Comm["community.tsx — Community"]
+   TabNav --> Prof["profile.tsx — Profile"]
 
-    Expl --> SList["Surah List"]
-    SList --> SView["[surahId].tsx\nSurah Viewer"]
-    SView --> AT["ArabicText"]
-    SView --> VC["VerseCard"]
-    SView --> TC["TafsirCard\n(bottom sheet)"]
-    SView --> WH["WordHighlight"]
 
-    Comm --> HQ["Halaqa List/Detail"]
-    HQ --> MR["MemberRow"]
-    HQ --> LG["LanternGlow"]
+   Home --> VOD["VerseOfDay widget"]
+   Home --> PW["PrayerTimesWidget"]
+   Home --> QA["QuickActions grid\n(engagementStore order)"]
+   Home --> SBC["StreakBreakCard\n(when streak=0)"]
 
-    Prof --> ID["identity.tsx"]
-    Prof --> JN["journal.tsx"]
-    Prof --> LB["library.tsx"]
-    Prof --> SH["share.tsx\n(Journey Card)"]
-    Prof --> RVQ["review/queue.tsx"]
-    RVQ --> FC["FlashCard"]
-    FC --> RC["review/complete.tsx"]
 
-    subgraph Global["Global Components"]
-        EB["ErrorBoundary\n(class-based crash recovery)"]
-        OB["OfflineBanner\n(animated · useNetworkStatus)"]
-        NB["NotificationBar"]
-        MP["MiniPlayer\n(audio persists across screens)"]
-    end
+   Dash --> GR["GrowthRings (SVG)"]
+   Dash --> HM["HeatmapChart (Victory)"]
+   Dash --> ST["StreakTimeline"]
+   Dash --> GP["Goals Progress bars"]
+
+
+   Expl --> SList["Surah List"]
+   SList --> SView["[surahId].tsx\nSurah Viewer"]
+   SView --> AT["ArabicText"]
+   SView --> VC["VerseCard"]
+   SView --> TC["TafsirCard\n(bottom sheet)"]
+   SView --> WH["WordHighlight"]
+
+
+   Comm --> HQ["Halaqa List/Detail"]
+   HQ --> MR["MemberRow"]
+   HQ --> LG["LanternGlow"]
+
+
+   Prof --> ID["identity.tsx"]
+   Prof --> JN["journal.tsx"]
+   Prof --> LB["library.tsx"]
+   Prof --> SH["share.tsx\n(Journey Card)"]
+   Prof --> RVQ["review/queue.tsx"]
+   RVQ --> FC["FlashCard"]
+   FC --> RC["review/complete.tsx"]
+
+
+   subgraph Global["Global Components"]
+       EB["ErrorBoundary\n(class-based crash recovery)"]
+       OB["OfflineBanner\n(animated · useNetworkStatus)"]
+       NB["NotificationBar"]
+       MP["MiniPlayer\n(audio persists across screens)"]
+   end
 ```
 
+
 ---
+
 
 ## State Management Flow
 
+
 ```mermaid
 flowchart LR
-    subgraph Stores["Zustand Stores — persisted via AsyncStorage"]
-        AS["authStore\nuser · session · translationId\nnudgesEnabled · reviewReminders"]
-        SS["streakStore\ncurrentStreak · longestStreak · history"]
-        RS["reviewStore\ncards · dueQueue · ease factors"]
-        ES["engagementStore\ntaps per FeatureKey"]
-        HS["halaqaStore\ncircles · members · lanternBrightness"]
-        CS["crisisStore\nsessions · moodLog"]
-        SV["savedStore\nbookmarks · collections"]
-        NS["notificationStore\nqueue · delivered"]
-    end
+   subgraph Stores["Zustand Stores — persisted via AsyncStorage"]
+       AS["authStore\nuser · session · translationId\nnudgesEnabled · reviewReminders"]
+       SS["streakStore\ncurrentStreak · longestStreak · history"]
+       RS["reviewStore\ncards · dueQueue · ease factors"]
+       ES["engagementStore\ntaps per FeatureKey"]
+       HS["halaqaStore\ncircles · members · lanternBrightness"]
+       CS["crisisStore\nsessions · moodLog"]
+       SV["savedStore\nbookmarks · collections"]
+       NS["notificationStore\nqueue · delivered"]
+   end
 
-    subgraph Cache["React Query Cache"]
-        Q1["['surahs']"]
-        Q2["['verse', key, translationId]"]
-        Q3["['verseOfDay', key, translationId]"]
-        Q4["['tafsir', key, tafsirId]"]
-        Q5["['verses', surahId, page, translationId]"]
-    end
 
-    subgraph Actions["User Actions"]
-        A1["Login / Signup"]
-        A2["Log Session"]
-        A3["Rate Flashcard"]
-        A4["Tap Quick Action"]
-        A5["Bookmark Verse"]
-        A6["Change Translation"]
-        A7["Toggle Notification"]
-    end
+   subgraph Cache["React Query Cache"]
+       Q1["['surahs']"]
+       Q2["['verse', key, translationId]"]
+       Q3["['verseOfDay', key, translationId]"]
+       Q4["['tafsir', key, tafsirId]"]
+       Q5["['verses', surahId, page, translationId]"]
+   end
 
-    A1 --> AS
-    A2 --> SS
-    A3 --> RS
-    A4 --> ES
-    A5 --> SV
-    A6 --> AS
-    A6 -->|"invalidates cache"| Q2 & Q3 & Q5
-    A7 --> AS
 
-    AS -->|"translationId"| Q2 & Q3 & Q5
-    ES -->|"ordered features"| Home["Home QuickActions"]
-    SS -->|"streak data"| Dash["Dashboard"]
-    RS -->|"due cards"| RV["Review Queue"]
+   subgraph Actions["User Actions"]
+       A1["Login / Signup"]
+       A2["Log Session"]
+       A3["Rate Flashcard"]
+       A4["Tap Quick Action"]
+       A5["Bookmark Verse"]
+       A6["Change Translation"]
+       A7["Toggle Notification"]
+   end
+
+
+   A1 --> AS
+   A2 --> SS
+   A3 --> RS
+   A4 --> ES
+   A5 --> SV
+   A6 --> AS
+   A6 -->|"invalidates cache"| Q2 & Q3 & Q5
+   A7 --> AS
+
+
+   AS -->|"translationId"| Q2 & Q3 & Q5
+   ES -->|"ordered features"| Home["Home QuickActions"]
+   SS -->|"streak data"| Dash["Dashboard"]
+   RS -->|"due cards"| RV["Review Queue"]
 ```
 
+
 ---
+
 
 ## Navigation Map
 
+
 ```mermaid
 flowchart TD
-    Entry([App Start]) --> SB{Session\nToken Valid?}
-    SB -- No --> Login["/auth/login"]
-    SB -- Yes --> Tabs
+   Entry([App Start]) --> SB{Session\nToken Valid?}
+   SB -- No --> Login["/auth/login"]
+   SB -- Yes --> Tabs
 
-    Login --> Signup["/auth/signup"]
-    Login --> Tabs
-    Signup --> Onboard["/auth/onboarding"]
-    Onboard --> Tabs
 
-    subgraph Tabs[Bottom Tab Navigator]
-        T1["/ Home"]
-        T2["/dashboard"]
-        T3["/explore"]
-        T4["/community"]
-        T5["/profile"]
-    end
+   Login --> Signup["/auth/signup"]
+   Login --> Tabs
+   Signup --> Onboard["/auth/onboarding"]
+   Onboard --> Tabs
 
-    T1 --> Settings["/settings"]
-    T1 --> Search["/search"]
-    T1 --> Crisis["/crisis/entry"]
-    Crisis --> Dhikr["/crisis/dhikr"]
-    Dhikr --> Result["/crisis/result"]
 
-    T2 --> Session["/dashboard/session"]
-    T2 --> Streak["/dashboard/streak"]
-    T2 --> Goals["/dashboard/goals"]
+   subgraph Tabs[Bottom Tab Navigator]
+       T1["/ Home"]
+       T2["/dashboard"]
+       T3["/explore"]
+       T4["/community"]
+       T5["/profile"]
+   end
 
-    T3 --> Surah["/quran/[surahId]"]
-    T3 --> Roots["/explore/roots"]
-    T3 --> Graph["/explore/graph"]
-    T3 --> Concept["/explore/concept/[slug]"]
-    T3 --> Word["/explore/word/[word]"]
 
-    T4 --> HalaqaList["/community/halaqa"]
-    HalaqaList --> HalaqaDetail["/community/halaqa/[id]"]
-    HalaqaDetail --> Insight["/community/halaqa/insight"]
-    HalaqaDetail --> Lantern["/community/halaqa/lantern"]
+   T1 --> Settings["/settings"]
+   T1 --> Search["/search"]
+   T1 --> Crisis["/crisis/entry"]
+   Crisis --> Dhikr["/crisis/dhikr"]
+   Dhikr --> Result["/crisis/result"]
 
-    T5 --> Identity["/profile/identity"]
-    T5 --> Journal["/profile/journal"]
-    T5 --> Library["/profile/library"]
-    T5 --> Share["/profile/share"]
-    T5 --> ReviewQ["/profile/review/queue"]
-    ReviewQ --> Flashcard["/profile/review/flashcard"]
-    Flashcard --> Complete["/profile/review/complete"]
+
+   T2 --> Session["/dashboard/session"]
+   T2 --> Streak["/dashboard/streak"]
+   T2 --> Goals["/dashboard/goals"]
+
+
+   T3 --> Surah["/quran/[surahId]"]
+   T3 --> Roots["/explore/roots"]
+   T3 --> Graph["/explore/graph"]
+   T3 --> Concept["/explore/concept/[slug]"]
+   T3 --> Word["/explore/word/[word]"]
+
+
+   T4 --> HalaqaList["/community/halaqa"]
+   HalaqaList --> HalaqaDetail["/community/halaqa/[id]"]
+   HalaqaDetail --> Insight["/community/halaqa/insight"]
+   HalaqaDetail --> Lantern["/community/halaqa/lantern"]
+
+
+   T5 --> Identity["/profile/identity"]
+   T5 --> Journal["/profile/journal"]
+   T5 --> Library["/profile/library"]
+   T5 --> Share["/profile/share"]
+   T5 --> ReviewQ["/profile/review/queue"]
+   ReviewQ --> Flashcard["/profile/review/flashcard"]
+   Flashcard --> Complete["/profile/review/complete"]
 ```
 
+
 ---
+
 
 ## API & Data Flow
 
+
 ```mermaid
 sequenceDiagram
-    participant App as React Native App
-    participant RQ as React Query Cache
-    participant QA as quran.com v4 API
-    participant AUTH as Noor Auth
-    participant API as Noor Backend
-    participant DB as Neon Postgres
-    participant GQ as Groq AI
+   participant App as React Native App
+   participant RQ as React Query Cache
+   participant QA as quran.com v4 API
+   participant AUTH as Noor Auth
+   participant API as Noor Backend
+   participant DB as Neon Postgres
+   participant GQ as Groq AI
 
-    Note over App,GQ: App startup
-    App->>AUTH: restore persisted session
-    AUTH-->>App: { user, token }
-    App->>API: GET /api/db/profiles/:userId
-    API->>DB: Prisma profile lookup
-    DB-->>API: profile + onboarding_done
-    API-->>App: profile
-    App->>App: authStore.setAuthenticatedUser()
 
-    Note over App,QA: Home — Verse of Day
-    App->>RQ: useVerseOfDay() [key: verseOfDay, key, translationId=20]
-    RQ->>QA: GET /api/v4/verses/{key}?translations=20
-    QA-->>RQ: { verse, translations: [{text}] }
-    RQ-->>App: cached verse (stale: 12h)
+   Note over App,GQ: App startup
+   App->>AUTH: restore persisted session
+   AUTH-->>App: { user, token }
+   App->>API: GET /api/db/profiles/:userId
+   API->>DB: Prisma profile lookup
+   DB-->>API: profile + onboarding_done
+   API-->>App: profile
+   App->>App: authStore.setAuthenticatedUser()
 
-    Note over App,QA: Surah viewer
-    App->>RQ: useVerses(surahId, page) [key: verses, id, page, 20]
-    RQ->>QA: GET /api/v4/verses/by_chapter/{id}?page=1&per_page=50&translations=20
-    QA-->>RQ: { verses: [...50 verses] }
-    RQ-->>App: staleTime: Infinity (cached permanently)
 
-    Note over App,SB: Session logging
-    App->>SB: INSERT streak_days {user_id, date, verses_read, dhikr_count}
-    SB-->>App: inserted row
-    App->>App: streakStore.recordDay(data)
+   Note over App,QA: Home — Verse of Day
+   App->>RQ: useVerseOfDay() [key: verseOfDay, key, translationId=20]
+   RQ->>QA: GET /api/v4/verses/{key}?translations=20
+   QA-->>RQ: { verse, translations: [{text}] }
+   RQ-->>App: cached verse (stale: 12h)
 
-    Note over App,GQ: Journal AI reflection
-    App->>GQ: POST /chat {messages: [{role:"user", content: journalText}]}
-    GQ-->>App: {choices:[{message:{content: reflection}}]}
-    App->>SB: UPDATE journals SET ai_reflection = reflection
+
+   Note over App,QA: Surah viewer
+   App->>RQ: useVerses(surahId, page) [key: verses, id, page, 20]
+   RQ->>QA: GET /api/v4/verses/by_chapter/{id}?page=1&per_page=50&translations=20
+   QA-->>RQ: { verses: [...50 verses] }
+   RQ-->>App: staleTime: Infinity (cached permanently)
+
+
+   Note over App,SB: Session logging
+   App->>SB: INSERT streak_days {user_id, date, verses_read, dhikr_count}
+   SB-->>App: inserted row
+   App->>App: streakStore.recordDay(data)
+
+
+   Note over App,GQ: Journal AI reflection
+   App->>GQ: POST /chat {messages: [{role:"user", content: journalText}]}
+   GQ-->>App: {choices:[{message:{content: reflection}}]}
+   App->>SB: UPDATE journals SET ai_reflection = reflection
 ```
 
+
 ---
+
 
 ## Notification System
 
+
 ```mermaid
 flowchart TD
-    AppStart([App Starts]) --> EGCheck{"Constants.executionEnvironment\n=== 'storeClient'\n(Expo Go)?"}
-    EGCheck -- Yes --> NoOp["Module never loaded\nAll functions are no-ops"]
-    EGCheck -- No --> LoadMod["Dynamically require\nexpo-notifications"]
+   AppStart([App Starts]) --> EGCheck{"Constants.executionEnvironment\n=== 'storeClient'\n(Expo Go)?"}
+   EGCheck -- Yes --> NoOp["Module never loaded\nAll functions are no-ops"]
+   EGCheck -- No --> LoadMod["Dynamically require\nexpo-notifications"]
 
-    LoadMod --> PermCheck{Permissions\nalready granted?}
-    PermCheck -- No --> ReqPerm["requestPermissionsAsync()"]
-    ReqPerm --> PermResult{Granted?}
-    PermResult -- No --> Abort["Return — no notifications"]
-    PermResult -- Yes --> Schedule
-    PermCheck -- Yes --> Schedule
 
-    subgraph Schedule["Schedule Notifications"]
-        N1["Prayer reminders\nFajr · Dhuhr · Asr · Maghrib · Isha\nDaily recurring triggers"]
-        N2["Review reminder\n8:00 PM daily"]
-        N3["Halaqa alert\n15 min before session start"]
-    end
+   LoadMod --> PermCheck{Permissions\nalready granted?}
+   PermCheck -- No --> ReqPerm["requestPermissionsAsync()"]
+   ReqPerm --> PermResult{Granted?}
+   PermResult -- No --> Abort["Return — no notifications"]
+   PermResult -- Yes --> Schedule
+   PermCheck -- Yes --> Schedule
 
-    UserToggles["Settings: toggle\nreviewReminders"] --> WatchEffect
-    WatchEffect{"reviewReminders\nchanged?"} -- enabled --> N2
-    WatchEffect -- disabled --> Cancel["cancelReviewReminder()\nremoves scheduled notif"]
+
+   subgraph Schedule["Schedule Notifications"]
+       N1["Prayer reminders\nFajr · Dhuhr · Asr · Maghrib · Isha\nDaily recurring triggers"]
+       N2["Review reminder\n8:00 PM daily"]
+       N3["Halaqa alert\n15 min before session start"]
+   end
+
+
+   UserToggles["Settings: toggle\nreviewReminders"] --> WatchEffect
+   WatchEffect{"reviewReminders\nchanged?"} -- enabled --> N2
+   WatchEffect -- disabled --> Cancel["cancelReviewReminder()\nremoves scheduled notif"]
 ```
+
 
 ---
 
+
 ## Design System
 
+
 ### Colour Palette
+
 
 | Token | Hex | Usage |
 |-------|-----|-------|
@@ -778,14 +925,18 @@ flowchart TD
 | `coral` | `#D05228` | Streak break card, error states |
 | `purple` | `#7B68C8` | AI features, journal |
 
+
 ### Typography
+
 
 | Role | Font Family | Weights Available |
 |------|------------|------------------|
 | Arabic text + display headers | Cormorant Garamond | 400 Regular, 400 Italic, 600 SemiBold, 700 Bold |
 | All UI copy | Raleway | 300 Light, 400 Regular, 600 SemiBold, 700 Bold |
 
+
 ### Border Radius Scale
+
 
 | Value | Usage |
 |-------|-------|
@@ -794,7 +945,9 @@ flowchart TD
 | `20` | Rank badge, pills |
 | `24` | Large cards, journey card |
 
+
 ### Gold Border Opacity Levels
+
 
 | Opacity | Usage |
 |---------|-------|
@@ -803,9 +956,12 @@ flowchart TD
 | `0.45` | Header/footer bands |
 | `0.70` | Active frame outer border |
 
+
 ---
 
+
 ## Tech Stack
+
 
 | Category | Package | Version | Purpose |
 |----------|---------|---------|---------|
@@ -837,9 +993,12 @@ flowchart TD
 | Quran data | quran.com v4 API | — | Verses, translations, tafsir, audio |
 | Prayer times | Aladhan API | — | Location-based salah times |
 
+
 ---
 
+
 ## Project Structure
+
 
 ```
 Noor/
@@ -979,11 +1138,15 @@ Noor/
 └── tsconfig.json
 ```
 
+
 ---
+
 
 ## Setup & Running
 
+
 ### Prerequisites
+
 
 - Node.js 20+
 - `npm install -g expo-cli`
@@ -991,21 +1154,28 @@ Noor/
 - Noor backend running with Prisma connected to Neon
 - Noor backend URL and internal API key
 
+
 ### Environment Variables
 
+
 Create `.env` in the project root:
+
 
 ```env
 EXPO_PUBLIC_BACKEND_URL=http://localhost:3001
 EXPO_PUBLIC_BACKEND_API_KEY=your_internal_api_key
 
+
 EXPO_PUBLIC_GROQ_API_KEY=your_groq_api_key
+
 
 # Optional — Quran Foundation OAuth
 EXPO_PUBLIC_OAUTH_CLIENT_ID=your_client_id
 ```
 
+
 ### Install & Start
+
 
 ```bash
 npm install
@@ -1015,24 +1185,31 @@ npx expo start
 # Scan QR → Expo Go on device
 ```
 
+
 ### Production Build (EAS)
+
 
 ```bash
 eas build --platform ios
 eas build --platform android
 ```
 
+
 > Push notifications require a standalone EAS build. They are intentionally disabled in Expo Go (SDK 53+) — the app detects this automatically and skips notification setup.
+
 
 ### Database
 
+
 The mobile app does not connect directly to Postgres. The backend owns all database access through Prisma.
+
 
 ```bash
 clone : git@github.com:sarcaxticlarka/Quran-Foundation-Hackathon.git
 cd noor-frontend
 npm install
-npx expo start 
+npx expo start
+
 
 cd noor-backend
 npm install
@@ -1041,7 +1218,9 @@ npx prisma db push
 npm run dev
 ```
 
+
 Backend env required:
+
 
 ```env
 DATABASE_URL=postgresql://...
@@ -1050,10 +1229,15 @@ QURAN_OAUTH_CLIENT_ID=your_quran_client_id
 QURAN_OAUTH_CLIENT_SECRET=your_quran_client_secret
 ```
 
+
 ---
 
- 
+
 ---
+
 
 *Noor — نور — Light for every day after Ramadan.*
 Built by Team Noor
+
+
+
