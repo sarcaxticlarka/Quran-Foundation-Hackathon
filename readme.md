@@ -27,7 +27,7 @@
 - **Website for Direct APK Download:** [NOOR Web Download](https://noor-web-download.netlify.app/)
 
 
-- **YouTube Demo Video:** [Watch on YouTube](https://youtu.be/TpVoa32lhlE)
+- **YouTube Demo Video Link:** [Watch on YouTube](https://youtu.be/TpVoa32lhlE)
 ---
 
 
