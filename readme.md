@@ -15,10 +15,13 @@
 
 ---
 
-## Quick Links
+## 🔗 Quick Links
 
 - **Download App (APK):** [Google Drive Link](https://drive.google.com/file/d/1Yd6P8mir7YhMkuJgYvUi0kFS8OQY9uFU/view?usp=drivesdk)*
 
+- **Website for Direct APK Download:** [NOOR Web Download](https://noor-web-download.netlify.app/)
+
+- **YouTube Demo Video:** [Watch on YouTube](https://youtu.be/TpVoa32lhlE)
 ---
 
 ## Table of Contents
@@ -1023,13 +1026,19 @@ eas build --platform android
 
 ### Database
 
-The mobile app does not connect directly to Postgres. The backend owns all database access through Prisma and Neon.
+The mobile app does not connect directly to Postgres. The backend owns all database access through Prisma.
 
 ```bash
-cd ../noorbackend
+clone : git@github.com:sarcaxticlarka/Quran-Foundation-Hackathon.git
+cd noor-frontend
+npm install
+npx expo start 
+
+cd noor-backend
 npm install
 npx prisma generate
 npx prisma db push
+npm run dev
 ```
 
 Backend env required:

@@ -6,9 +6,6 @@
 
 ## 🔗 Quick Links
 
-- Frontend Repository: https://github.com/sarcaxticlarka/noor-frontend
-- Backend Repository: https://github.com/sarcaxticlarka/noor-backend
-
 ---
 
 
